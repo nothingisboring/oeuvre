@@ -1,0 +1,88 @@
+{
+    "dailyPuzzles": [
+        {
+            "date": "2024-03-27",
+            "puzzles": [
+                {
+                    "clue": "Trick",
+                    "solution": "FOOL"
+                },
+                {
+                    "clue": "Zero",
+                    "solution": "NOTHING"
+                },
+                {
+                    "clue": "Harry, say, or Robert, or William?",
+                    "solution": "BASTARD"
+                },
+                {
+                    "clue": "Eye spy part of a Pixies song",
+                    "solution": "GOUGE"
+                },
+                {
+                    "clue": "Phwoar! That TV chef!",
+                    "solution": "CORDELIA"
+                }
+            ],
+            "oeuvreSolutions": [
+                "KING LEAR"
+            ]
+        },
+        {
+            "date": "2024-03-28",
+            "puzzles": [
+                {
+                    "clue": "Finished tit, we hear",
+                    "solution": "DUN BREAST"
+                },
+                {
+                    "clue": "Hiphop superhero stood?",
+                    "solution": "DAMASK ROSE"
+                },
+                {
+                    "clue": "Eugh! That ___ (*wafts hand*)",
+                    "solution": "REEKS"
+                },
+                {
+                    "clue": "Jet filaments",
+                    "solution": "BLACK WIRES"
+                },
+                {
+                    "clue": "An unreliable MC, say?",
+                    "solution": "FALSE COMPARE"
+                }
+            ],
+            "oeuvreSolutions": [
+                "SONNET 130"
+            ]
+        },
+        {
+            "date": "2024-03-30",
+            "puzzles": [
+                {
+                    "clue": "A well-named poison",
+                    "solution": "STRYCHNINE"
+                },
+                {
+                    "clue": "A cross between a state and a film flop?",
+                    "solution": "INDIANAPOLIS"
+                },
+                {
+                    "clue": "Italian monster?",
+                    "solution": "ORCA"
+                },
+                {
+                    "clue": "Friendship or 80s horror",
+                    "solution": "AMITY"
+                },
+                {
+                    "clue": "Tiger, hammerhead, etc.",
+                    "solution": "SHARK"
+                }
+            ],
+            "oeuvreSolutions": [
+                "JAWS"
+            ]
+        }
+    ]
+}
