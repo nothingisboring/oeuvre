@@ -1,0 +1,860 @@
+<!doctype html>
+<html>
+<head>
+    <title>Oeuvre</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .puzzle-container {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .clue-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .clue-row.active {
+            display: flex;
+            border-left: 5px solid #4caf50;
+        }
+
+        .clue-row.hidden-clue {
+            display: none;
+        }
+
+        .clue-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .letter-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            max-width: 100%;
+        }
+
+        .letter-input {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s ease, background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+            margin: 3px;
+        }
+
+        .letter-input:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Animation classes for letter feedback */
+        @keyframes correctAnimation {
+            0% { transform: scale(1); background-color: white; color: black; border-color: #ddd; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); background-color: #4caf50; color: white; border-color: #4caf50; }
+        }
+
+        @keyframes presentAnimation {
+            0% { transform: scale(1); background-color: white; color: black; border-color: #ddd; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); background-color: #ff9800; color: white; border-color: #ff9800; }
+        }
+
+        @keyframes absentAnimation {
+            0% { transform: scale(1); background-color: white; color: black; border-color: #ddd; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); background-color: #9e9e9e; color: white; border-color: #9e9e9e; }
+        }
+
+        .letter-input.correct {
+            background-color: #4caf50;
+            color: white;
+            border-color: #4caf50;
+            animation: correctAnimation 0.5s ease;
+        }
+
+        .letter-input.present {
+            background-color: #ff9800;
+            color: white;
+            border-color: #ff9800;
+            animation: presentAnimation 0.5s ease;
+        }
+
+        .letter-input.absent {
+            background-color: #9e9e9e;
+            color: white;
+            border-color: #9e9e9e;
+            animation: absentAnimation 0.5s ease;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .submit-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-btn:hover {
+            background-color: #3d9040;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-container {
+            min-height: 80px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+
+        .oeuvre-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .oeuvre-label {
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 18px;
+            text-align: center;
+            display: block;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .oeuvre-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .oeuvre-input:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+        .check-oeuvre-btn {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .check-oeuvre-btn:hover {
+            background-color: #1976d2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .check-oeuvre-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .solved-clues-section {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 30px;
+        }
+
+        .solved-clues-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #solvedCluesTable {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+        #solvedCluesTable th,
+        #solvedCluesTable td {
+            border: 1px solid #e9ecef;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        #solvedCluesTable th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        #solvedCluesTable tr:hover {
+            background-color: #f1f3f5;
+        }
+
+        .empty-table-message {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Oeuvre</h1>
+
+    <div class="game-stats">
+        <div class="stat-item">
+            <div class="stat-label">Score</div>
+            <div class="stat-value" id="scoreDisplay">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Winning Streak</div>
+            <div class="stat-value" id="streakDisplay">0</div>
+        </div>
+    </div>
+
+    <div class="puzzle-container" id="puzzleContainer"></div>
+
+    <div class="button-container">
+        <button class="submit-btn" id="submitBtn">Check Answer</button>
+    </div>
+
+    <div class="oeuvre-input-container">
+        <label for="oeuvreGuess" class="oeuvre-label">What is the famous work?</label>
+        <input
+            type="text"
+            id="oeuvreGuess"
+            class="oeuvre-input"
+            placeholder="Enter your guess for the Oeuvre"
+            disabled
+        />
+        <button class="check-oeuvre-btn" id="checkOeuvreBtn" disabled>
+            Check Oeuvre
+        </button>
+    </div>
+
+    <div class="result-container" id="resultContainer"></div>
+
+    <div class="solved-clues-section">
+        <h2 class="solved-clues-header">Solved Clues</h2>
+        <table id="solvedCluesTable">
+            <thead>
+                <tr>
+                    <th>Clue</th>
+                    <th>Answer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="empty-table-row">
+                    <td colspan="2" class="empty-table-message">No clues solved yet</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let puzzles = [];
+        let oeuvreSolutions = [];
+        let currentPuzzle = 0;
+
+        // Google Sheets API Configuration
+        const SPREADSHEET_ID = '1JaFfJwq1FcBg-XiVvDX5pabJkNmd6D0X1KOYcXdgaKE'; // Found in the sheets URL
+        const API_KEY = 'AIzaSyBNi5vjlgWHHxmE9ZgVFUHDJZGI2-NSmJA';
+        const SHEET_NAME = 'Daily Puzzles'; // Name of the sheet in your Google Sheet
+
+        let score = 0;
+        let clueAttempts = 5;
+        let oeuvreAttempts = 3;
+        let currentCorrectClues = 0;
+        let gameWon = false;
+        let currentClueIndex = 0;
+        let winningStreak = 0;
+        const streakKey = "oeuvreWinningStreak";
+        let currentOeuvreSolution = "";
+        let solvedClues = [];
+        let currentPuzzleSet = [];
+        let clueSolved = false;
+
+        function updateScoreDisplay() {
+            document.getElementById("scoreDisplay").textContent = score;
+        }
+
+        function updateStreakDisplay() {
+            document.getElementById("streakDisplay").textContent = winningStreak;
+        }
+
+        function getTodaysPuzzle() {
+            const today = new Date().toISOString().split('T')[0];
+            const sheetName = "Daily Puzzles";
+            const range = `${sheetName}!A1:L1000`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${'1JaFfJwq1FcBg-XiVvDX5pabJkNmd6D0X1KOYcXdgaKE'}/values/${'A1:K1000'}?key=${'AIzaSyBNi5vjlgWHHxmE9ZgVFUHDJZGI2-NSmJA'}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        console.error("Response status:", response.status);
+                        console.error("Response text:", response.statusText);
+                        return response.text().then(text => {
+                            console.error("Response body:", text);
+                            throw new Error('Network response was not ok');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const rows = data.values.slice(1);
+                    console.log("All rows: ", rows);
+
+                    const todayPuzzleRow = rows.find(row => row[0] === today);
+
+                    if (todayPuzzleRow) {
+                        console.log("Today's Puzzle Row: ", todayPuzzleRow);
+
+                        // Explicitly log the value from column L
+                        console.log("Today's Oeuvre Solution (Column L): ", todayPuzzleRow[11]);
+
+                        if (todayPuzzleRow[11] !== undefined) {
+                            oeuvreSolutions = [todayPuzzleRow[11]];
+                            currentOeuvreSolution = oeuvreSolutions[0];
+                            console.log("Todays currentOeuvreSolution: ", currentOeuvreSolution);
+                        } else {
+                            console.error("Today's Oeuvre solution is undefined.");
+                        }
+
+                        puzzles = [
+                            { clue: todayPuzzleRow[1], solution: todayPuzzleRow[2] },
+                            { clue: todayPuzzleRow[3], solution: todayPuzzleRow[4] },
+                            { clue: todayPuzzleRow[5], solution: todayPuzzleRow[6] },
+                            { clue: todayPuzzleRow[7], solution: todayPuzzleRow[8] },
+                            { clue: todayPuzzleRow[9], solution: todayPuzzleRow[10] }
+                        ];
+
+                        createPuzzle();
+                    } else {
+                        const mostRecentPuzzleRow = rows[rows.length - 1];
+                        console.log("Most Recent Puzzle Row: ", mostRecentPuzzleRow);
+
+                        // Explicitly log the value from column L
+                        console.log("Most Recent Oeuvre Solution (Column L): ", mostRecentPuzzleRow[11]);
+
+                        if (mostRecentPuzzleRow[11] !== undefined) {
+                            oeuvreSolutions = [mostRecentPuzzleRow[11]];
+                            currentOeuvreSolution = oeuvreSolutions[0];
+                            console.log("Most recent currentOeuvreSolution: ", currentOeuvreSolution);
+                        } else {
+                            console.error("Most recent Oeuvre solution is undefined.");
+                        }
+
+                        puzzles = [
+                            { clue: mostRecentPuzzleRow[1], solution: mostRecentPuzzleRow[2] },
+                            { clue: mostRecentPuzzleRow[3], solution: mostRecentPuzzleRow[4] },
+                            { clue: mostRecentPuzzleRow[5], solution: mostRecentPuzzleRow[6] },
+                            { clue: mostRecentPuzzleRow[7], solution: mostRecentPuzzleRow[8] },
+                            { clue: mostRecentPuzzleRow[9], solution: mostRecentPuzzleRow[10] }
+                        ];
+
+                        console.log('No puzzle found for today, using the most recent puzzle');
+                        createPuzzle();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching puzzles:', error);
+
+                    puzzles = [
+                        { clue: "Fallback Clue 1", solution: "PUZZLE" },
+                        { clue: "Fallback Clue 2", solution: "SOLVE" },
+                        { clue: "Fallback Clue 3", solution: "GAME" },
+                        { clue: "Fallback Clue 4", solution: "PLAY" },
+                        { clue: "Fallback Clue 5", solution: "FUN" }
+                    ];
+                    oeuvreSolutions = ["FALLBACK OEUVRE"];
+                    currentOeuvreSolution = oeuvreSolutions[0];
+                    console.log("Catch currentOeuvreSolution: ", currentOeuvreSolution);
+                    createPuzzle();
+                });
+        }
+
+        function createPuzzle() {
+            const container = document.getElementById("puzzleContainer");
+            container.innerHTML = ""; // Clear the container
+            clueAttempts = 5;
+            oeuvreAttempts = 3;
+            currentCorrectClues = 0;
+            gameWon = false;
+            currentClueIndex = 0;
+            solvedClues = [];
+            currentOeuvreSolution = oeuvreSolutions[0];
+            document.getElementById("oeuvreGuess").disabled = true;
+            document.getElementById("checkOeuvreBtn").disabled = true;
+            document.getElementById("oeuvreGuess").value = "";
+            document.getElementById("resultContainer").innerHTML = "";
+            document.getElementById("submitBtn").disabled = false;
+
+            // Reset the solved clues table with empty message
+            const tableBody = document.querySelector("#solvedCluesTable tbody");
+            tableBody.innerHTML = '<tr class="empty-table-row"><td colspan="2" class="empty-table-message">No clues solved yet</td></tr>';
+
+            clueSolved = false;
+            currentPuzzleSet = puzzles;
+
+            // Create and append clues here
+            currentPuzzleSet.forEach((puzzle, index) => {
+                const clueRow = document.createElement("div");
+                clueRow.className = "clue-row";
+                if (index !== 0) {
+                    clueRow.classList.add("hidden-clue"); // Hide clues except the first one
+                } else {
+                    clueRow.classList.add("active");
+                }
+
+                const clueText = document.createElement("div");
+                clueText.className = "clue-text";
+                clueText.textContent = `Clue ${index + 1}: ${puzzle.clue}`;
+                clueRow.appendChild(clueText);
+
+                const letterContainer = document.createElement("div");
+                letterContainer.className = "letter-input-container";
+
+                for (let i = 0; i < puzzle.solution.length; i++) {
+                    const letterInput = document.createElement("input");
+                    letterInput.type = "text";
+                    letterInput.maxLength = 1;
+                    letterInput.className = "letter-input";
+                    letterInput.dataset.index = index;
+                    letterInput.dataset.letterIndex = i;
+                    letterInput.addEventListener("input", function (e) {
+                        this.value = this.value.toUpperCase();
+                        if (this.value.length > 1) {
+                            this.value = this.value[0];
+                        }
+                        if (this.value.length === 1) {
+                            const nextInput = this.nextElementSibling;
+                            if (nextInput && nextInput.classList.contains("letter-input")) {
+                                nextInput.focus();
+                            }
+                        }
+                    });
+
+                    // Add keyboard navigation
+                    letterInput.addEventListener("keydown", function (e) {
+                        if (e.key === "Backspace" && this.value === "") {
+                            const prevInput = this.previousElementSibling;
+                            if (prevInput && prevInput.classList.contains("letter-input")) {
+                                prevInput.focus();
+                            }
+                        }
+                    });
+
+                    letterContainer.appendChild(letterInput);
+                }
+
+                clueRow.appendChild(letterContainer);
+                container.appendChild(clueRow);
+            });
+        }
+
+        function checkAnswers() {
+            const resultContainer = document.getElementById("resultContainer");
+            resultContainer.innerHTML = "";
+            let currentClueCorrect = true;
+            const currentClue = document.querySelectorAll(
+                `.letter-input[data-index="${currentClueIndex}"]`
+            );
+            const solution = currentPuzzleSet[currentClueIndex].solution;
+
+            // Remove any existing classes before adding new ones for animation
+            currentClue.forEach((input) => {
+                input.classList.remove("correct", "present", "absent");
+            });
+
+            // Delay the status updates slightly to allow for CSS animation reset
+            setTimeout(() => {
+                // First check if all inputs have values
+                let allFilled = true;
+                currentClue.forEach((input) => {
+                    if (!input.value) {
+                        allFilled = false;
+                    }
+                });
+
+                if (!allFilled) {
+                    resultContainer.innerHTML = '<div style="color: #dc3545;">Please fill in all letters before checking.</div>';
+                    return;
+                }
+
+                // Apply the animations with staggered timing
+                currentClue.forEach((input, letterIndex) => {
+                    const guess = input.value.toUpperCase();
+
+                    setTimeout(() => {
+                        if (guess === solution[letterIndex]) {
+                            input.classList.add("correct");
+                        } else if (solution.includes(guess)) {
+                            input.classList.add("present");
+                            currentClueCorrect = false;
+                        } else {
+                            input.classList.add("absent");
+                            currentClueCorrect = false;
+                        }
+                    }, letterIndex * 200); // Stagger by 200ms per letter
+                });
+
+                // Continue with result checking after animations
+                setTimeout(() => {
+                    if (currentClueCorrect) {
+                        const correctMessage = document.createElement("div");
+                        correctMessage.textContent = `Clue ${currentClueIndex + 1} solved correctly!`;
+                        correctMessage.style.color = "#4caf50";
+                        correctMessage.style.fontWeight = "bold";
+                        resultContainer.appendChild(correctMessage);
+
+                        currentCorrectClues++;
+                        solvedClues.push({
+                            clue: currentPuzzleSet[currentClueIndex].clue,
+                            answer: solution,
+                        });
+                        clueSolved = true;
+                        updateSolvedCluesTable();
+                        enableOeuvreInput();
+
+                        if (currentClueIndex < currentPuzzleSet.length - 1) {
+                            // Hide current clue
+                            document.querySelectorAll(".clue-row")[currentClueIndex].classList.remove("active");
+                            document.querySelectorAll(".clue-row")[currentClueIndex].classList.add("hidden-clue");
+
+                            // Show next clue
+                            currentClueIndex++;
+                            document.querySelectorAll(".clue-row")[currentClueIndex].classList.remove("hidden-clue");
+                            document.querySelectorAll(".clue-row")[currentClueIndex].classList.add("active");
+                        } else {
+                            document.getElementById("submitBtn").disabled = true;
+                        }
+                    } else {
+                        clueAttempts--;
+                        if (clueAttempts === 0) {
+                            resultContainer.innerHTML = '<div style="color: #dc3545; font-weight: bold;">Game Over - You ran out of clue attempts!</div>';
+                            document.getElementById("submitBtn").disabled = true;
+                            document.getElementById("checkOeuvreBtn").disabled = true;
+                        } else {
+                            resultContainer.innerHTML += `<div>You have ${clueAttempts} clue attempts remaining.</div>`;
+                        }
+                    }
+                }, solution.length * 200 + 100); // Wait for all letter animations plus a small buffer
+            }, 50);
+        }
+
+        function updateSolvedCluesTable() {
+            const tableBody = document.querySelector("#solvedCluesTable tbody");
+            // Remove the empty message if it exists
+            const emptyRow = tableBody.querySelector(".empty-table-row");
+            if (emptyRow) {
+                tableBody.removeChild(emptyRow);
+            }
+
+            // Clear and repopulate
+            tableBody.innerHTML = "";
+            solvedClues.forEach((solvedClue) => {
+                const row = document.createElement("tr");
+                const clueCell = document.createElement("td");
+                const answerCell = document.createElement("td");
+                clueCell.textContent = solvedClue.clue;
+                answerCell.textContent = solvedClue.answer;
+                answerCell.style.fontWeight = "bold";
+                row.appendChild(clueCell);
+                row.appendChild(answerCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function enableOeuvreInput() {
+            document.getElementById("oeuvreGuess").disabled = false;
+            document.getElementById("checkOeuvreBtn").disabled = false;
+        }
+
+        function checkOeuvre() {
+    console.log("checkOeuvre currentOeuvreSolution: ", currentOeuvreSolution);
+
+    const oeuvreGuessInput = document.getElementById("oeuvreGuess");
+    const resultContainer = document.getElementById("resultContainer");
+
+    // Reset and force visibility
+    resultContainer.innerHTML = "";
+    resultContainer.style.cssText = `
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background-color: #fff !important;
+            padding: 15px !important;
+            border-radius: 10px !important;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1) !important;
+            font-size: 16px !important;
+            text-align: center !important;
+        `;
+
+    const oeuvreGuess = oeuvreGuessInput.value.trim().toUpperCase();
+    
+    // Safety check to prevent errors
+    if (!currentOeuvreSolution) {
+        resultContainer.innerHTML = '<div style="color: #dc3545; font-weight: bold;">Error: Oeuvre solution is not available. Please refresh the page or try again later.</div>';
+        return;
+    }
+
+    if (oeuvreGuess === currentOeuvreSolution.toUpperCase()) {
+        let oeuvreScore = 0;
+        let announcement = "";
+        let emoticonAnnouncement = "";
+
+        switch (currentCorrectClues) {
+            case 1:
+                oeuvreScore = 10;
+                announcement = "Blimey! Wizard-like genius, fella! 🧙";
+                emoticonAnnouncement = "🏆🌟 Masterful solving in just ONE clue! 🌟🏆";
+                break;
+            case 2:
+                oeuvreScore = 8;
+                announcement = "Tremendous stuff! 🚀";
+                emoticonAnnouncement = "🎉🧠 Literary genius at work! 🧠🎉";
+                break;
+            case 3:
+                oeuvreScore = 6;
+                announcement = "Not too shabby! 👏";
+                emoticonAnnouncement = "✨🔍 Sharp deduction skills! ✨🔍";
+                break;
+            case 4:
+                oeuvreScore = 4;
+                announcement = "Decent effort! 👍";
+                emoticonAnnouncement = "💡🌈 Getting there! Keep solving! 🌈💡";
+                break;
+            case 5:
+                oeuvreScore = 2;
+                announcement = "Lucky escape! 🍀";
+                emoticonAnnouncement = "🎲🏅 Squeaked through by the skin of your teeth! 🏅🎲";
+                break;
+            default:
+                oeuvreScore = 0;
+                announcement = "Congratulations! 🎊";
+                emoticonAnnouncement = "🌟🎉 You did it! 🎉🌟";
+        }
+
+        score += oeuvreScore;
+        updateScoreDisplay();
+
+        // Update winning streak
+        winningStreak++;
+        localStorage.setItem(streakKey, winningStreak);
+        updateStreakDisplay();
+
+        const messageContainer = document.createElement("div");
+        messageContainer.style.cssText = `
+                display: block !important;
+                opacity: 1 !important;
+                text-align: center !important;
+            `;
+
+        const winMessage = document.createElement("div");
+        winMessage.innerHTML = `<span style="font-size: 20px; color: #4caf50;">✓</span> You correctly identified the literary work as <strong>${currentOeuvreSolution}</strong> and scored <strong>${oeuvreScore} points</strong>!`;
+        winMessage.style.cssText = `
+                margin-bottom: 15px !important;
+                font-size: 18px !important;
+            `;
+
+        const announcementDiv = document.createElement("div");
+        announcementDiv.textContent = announcement;
+        announcementDiv.style.cssText = `
+                font-weight: bold !important;
+                color: #2196f3 !important;
+                margin-bottom: 15px !important;
+                font-size: 20px !important;
+            `;
+
+        const emoticonDiv = document.createElement("div");
+        emoticonDiv.textContent = emoticonAnnouncement;
+        emoticonDiv.style.cssText = `
+                font-size: 18px !important;
+                color: #ff9800 !important;
+            `;
+
+        // Append messages
+        messageContainer.appendChild(winMessage);
+        messageContainer.appendChild(announcementDiv);
+        messageContainer.appendChild(emoticonDiv);
+
+        resultContainer.appendChild(messageContainer);
+
+        // Disable buttons after winning
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("checkOeuvreBtn").disabled = true;
+        gameWon = true;
+    } else {
+        oeuvreAttempts--;
+        const incorrectMessage = document.createElement("div");
+        incorrectMessage.innerHTML = `<span style="color: #dc3545;">✗</span> Incorrect guess for the literary work.`;
+        incorrectMessage.style.cssText = `
+                margin-bottom: 10px !important;
+                font-weight: bold !important;
+            `;
+
+        resultContainer.appendChild(incorrectMessage);
+
+        if (oeuvreAttempts === 0) {
+            const gameOverMessage = document.createElement("div");
+            gameOverMessage.textContent = `Game Over - You ran out of Oeuvre attempts! The answer was "${currentOeuvreSolution}".`;
+            gameOverMessage.style.cssText = `
+                    color: #dc3545 !important;
+                    font-weight: bold !important;
+                `;
+            resultContainer.appendChild(gameOverMessage);
+
+            document.getElementById("checkOeuvreBtn").disabled = true;
+            document.getElementById("submitBtn").disabled = true;
+
+            // Reset streak
+            winningStreak = 0;
+            localStorage.setItem(streakKey, winningStreak);
+            updateStreakDisplay();
+        } else {
+            const attemptsMessage = document.createElement("div");
+            attemptsMessage.textContent = `You have ${oeuvreAttempts} Oeuvre attempts remaining.`;
+            resultContainer.appendChild(attemptsMessage);
+        }
+    }
+}
+        // Modify the DOMContentLoaded event listener
+        document.addEventListener("DOMContentLoaded", () => {
+            getTodaysPuzzle(); // Call getTodaysPuzzle to fetch and set up the puzzle
+            updateScoreDisplay();
+            winningStreak = parseInt(localStorage.getItem(streakKey)) || 0;
+            updateStreakDisplay();
+
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.addEventListener("click", checkAnswers);
+
+            const checkOeuvreBtn = document.getElementById("checkOeuvreBtn");
+            checkOeuvreBtn.addEventListener("click", checkOeuvre);
+        });
+    </script>
+</body>
+</html>
