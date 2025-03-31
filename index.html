@@ -405,7 +405,7 @@
         }
 
        function getTodaysPuzzle() {
-            fetch('puzzles.JSON') // Load from puzzles.JSON
+            fetch('puzzles.json') // Load from puzzles.json
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
